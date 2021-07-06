@@ -181,15 +181,17 @@ const getFriendsData = (req, res) => {
 
 const saveNewContact = (req, res) => {
 	const obj = JSON.parse(JSON.stringify(req.body));
-	console.log(JSON.parse(JSON.stringify(req.body)));
+	// console.log(JSON.parse(JSON.stringify(req.body)));
 	const user_id = obj.id;
 	const contacts = obj.contact_dict;
 	UserContacts.findOne({ id: user_id }).then((result) => {
 		if (result) {
+			console.log('1');
 			// console.log('contacts: ', result);
 			const friendsOffDict = result.friends_off;
 			const friendsOnDict = result.friends_on;
 			const friendsBlockedDict = result.friends_blocked;
+			const invitationSentDict = result.invitation_sent;
 			const finalDict = { ...friendsOffDict, ...friendsOnDict, ...friendsBlockedDict };
 			const diffsDict = diff(contacts, finalDict);
 			const tempFriendsOff = { ...friendsOffDict, ...diffsDict };
@@ -210,46 +212,58 @@ const saveNewContact = (req, res) => {
 			});
 
 			const allFriendsOn = { ...friendsOnContactDict, ...friendsOnDict };
+			const insertObj = {
+				id: user_id,
+				friends_off: tempFriendsOff,
+				friends_on: allFriendsOn,
+				friends_blocked: friendsBlockedDict,
+				invitation_sent: invitationSentDict
+			};
 			UserContacts.collection
 				.updateOne({ id: user_id }, { $set: { friends_off: tempFriendsOff, friends_on: allFriendsOn } })
 				.then((result) => {
-					res.send(JSON.stringify('success'));
+					console.log('2');
+					res.send(JSON.stringify(insertObj));
 					res.end();
 					return;
 				})
 				.catch((err) => {
 					console.error(`saveNewContact1 # Failed to insert documents in UserContacts: ${err}`);
-					res.send(JSON.stringify('fail'));
+					res.send(null);
 					res.end();
 					return;
 				});
 		} else {
 			//check which contact or mobile is already present in DB
+			console.log('3');
 			const friendsOnContactDict = {};
 			Object.keys(contacts).map((mobile) => {
 				const x = USER_MOBILE_DICT[mobile];
 				if (x) {
 					const user = contacts[mobile];
-					friendsOnContactDict[user.mobile] = user.name;
+					friendsOnContactDict[mobile] = user;
 					delete contacts[mobile];
 				}
 			});
+
+			const insertObj = {
+				id: user_id,
+				friends_off: contacts,
+				friends_on: friendsOnContactDict,
+				friends_blocked: {},
+				invitation_sent: {}
+			};
 			UserContacts.collection
-				.insertOne({
-					id: user_id,
-					friends_off: contacts,
-					friends_on: {},
-					friends_blocked: {},
-					invitation_sent: {}
-				})
+				.insertOne(insertObj)
 				.then((result) => {
-					res.send(JSON.stringify('success'));
+					console.log('4');
+					res.send(JSON.stringify(insertObj));
 					res.end();
 					return;
 				})
 				.catch((err) => {
 					console.error(`saveNewContact2 # Failed to insert documents in UserContacts: ${err}`);
-					res.send(JSON.stringify('fail'));
+					res.send(null);
 					res.end();
 					return;
 				});
@@ -283,8 +297,12 @@ const getUserDetails = (req, res) => {
 				User.collection
 					.insertOne(userObj)
 					.then((result) => {
+						console.log('1');
 						const temp = { [mobileXX]: nameXX };
 						USER_MOBILE_DICT[mobileXX] = 'y';
+						res.send(JSON.stringify(userObj));
+						res.end();
+						return;
 						// AllUsers.collection
 						// 	.updateOne({ id: 'All_Users' }, { $set: { users: temp } }, { upsert: true })
 						// 	.then((result) => {
