@@ -97,6 +97,30 @@ app.post('/saveNewContact', function(req, res) {
 	saveNewContact(req, res);
 });
 
+app.post('/updateName', function(req, res) {
+	console.log('updateName');
+	updateName(req, res);
+});
+
+const updateName = (req, res) => {
+	console.log(JSON.stringify(req.body));
+	const obj = JSON.parse(JSON.stringify(req.body));
+	const name = obj.name;
+	const mobile = obj.mobile;
+	User.updateOne({ mobile: mobile }, { $set: { name: name } })
+		.then((result) => {
+			res.send(JSON.stringify('success'));
+			res.end();
+			return;
+		})
+		.catch((err) => {
+			console.error(`generateOTP# Failed to fetch documents : ${err}`);
+			res.send(JSON.stringify('fail'));
+			res.end();
+			return;
+		});
+};
+
 const generateOTP = (req, res) => {
 	console.log(JSON.stringify(req.body));
 	const obj = JSON.parse(JSON.stringify(req.body));
