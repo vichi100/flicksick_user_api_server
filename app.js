@@ -299,7 +299,7 @@ const getUserDetails = (req, res) => {
 	const obj = JSON.parse(JSON.stringify(req.body));
 	console.log(JSON.stringify(req.body));
 	const mobileXX = obj.mobile;
-	const nameXX = obj.name;
+
 	const countryCode = obj.country_code;
 	User.findOne({ mobile: obj.mobile })
 		.then((result) => {
@@ -322,7 +322,7 @@ const getUserDetails = (req, res) => {
 					.insertOne(userObj)
 					.then((result) => {
 						console.log('1');
-						const temp = { [mobileXX]: nameXX };
+
 						USER_MOBILE_DICT[mobileXX] = 'y';
 						res.send(JSON.stringify(userObj));
 						res.end();
