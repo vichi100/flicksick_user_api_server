@@ -45,7 +45,8 @@ const USER_MOBILE_DICT = {};
 
 // start: Connect to DB
 // const dbURL = 'mongodb+srv://vichi:vichi123@cluster0.3gcit.mongodb.net/flixsee?retryWrites=true&w=majority'
-const dbURL = 'mongodb+srv://vichi:vichi123@cluster0.emt5x.mongodb.net/flicksick_india?retryWrites=true&w=majority';
+// const dbURL = 'mongodb+srv://vichi:vichi123@cluster0.emt5x.mongodb.net/flicksick_india?retryWrites=true&w=majority';
+const dbURL = 'mongodb://flicksick:flicksick123@209.145.57.26:27017/flicksick_india'
 mongoose
 	.connect(dbURL)
 	.then(() => {
